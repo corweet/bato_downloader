@@ -61,7 +61,10 @@ def get_manga_info(series_url):
     
     return manga_title, chapters
 
-def download_chapter(chapter_url, manga_title, chapter_title, output_dir="."):
+def download_chapter(chapter_url, manga_title, chapter_title, output_dir=".", stop_event=None):
+    if stop_event and stop_event.is_set():
+        return # Stop early if signal is already set
+
     response = requests.get(chapter_url)
     soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -99,6 +102,9 @@ def download_chapter(chapter_url, manga_title, chapter_title, output_dir="."):
     print_lock = threading.Lock()
 
     def download_image(img_url, index):
+        if stop_event and stop_event.is_set():
+            return # Stop early if signal is set
+
         if img_url and img_url.startswith('http'):
             try:
                 img_data = requests.get(img_url).content
