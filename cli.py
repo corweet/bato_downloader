@@ -105,7 +105,9 @@ def download(
     series_url: Annotated[str, typer.Argument(help="The Bato.to series URL.")],
     all_chapters: Annotated[bool, typer.Option("--all", "-a", help="Download all chapters.")] = False,
     chapter_range: Annotated[str, typer.Option("--range", "-r", help="Download a specific range of chapters (e.g., '1-10').")] = None,
-    output_dir: Annotated[str, typer.Option("--output", "-o", help="Directory to save downloaded chapters.")] = "."
+    output_dir: Annotated[str, typer.Option("--output", "-o", help="Directory to save downloaded chapters.")] = ".",
+    max_workers: Annotated[int, typer.Option("--max-workers", "-w", help="Maximum number of concurrent chapter downloads.")] = 3,
+    verbose: Annotated[bool, typer.Option("--verbose", "-v", help="Enable verbose output.")] = False
 ):
     """
     Downloads chapters from a manga series.
@@ -167,23 +169,54 @@ def download(
         # Use a lock for thread-safe printing with rich
         print_lock = threading.Lock()
 
-        def download_single_chapter_cli(chapter, index):
-            with print_lock:
-                progress.update(task, description=f"[bold green]Downloading {chapter['title']}...[/bold green] ([{index+1}/{len(chapters_to_download)}])")
+        def download_single_chapter_cli(chapter, index, stop_event):
+            if stop_event.is_set():
+                if verbose:
+                    with print_lock:
+                        rprint(f"[bold yellow]Skipping {chapter['title']} (download stopped).[/bold yellow]")
+                return
+
+            if verbose:
+                with print_lock:
+                    progress.update(task, description=f"[bold green]Downloading {chapter['title']}...[/bold green] ([{index+1}/{len(chapters_to_download)}])")
             try:
-                download_chapter(chapter['url'], manga_title, chapter['title'], output_dir)
-                with print_lock:
-                    progress.advance(task)
+                download_chapter(chapter['url'], manga_title, chapter['title'], output_dir, stop_event)
+                if not stop_event.is_set() and verbose: # Only update progress if not stopped
+                    with print_lock:
+                        progress.advance(task)
             except Exception as e:
-                with print_lock:
-                    rprint(f"[bold red]Error downloading {chapter['title']}:[/bold red] {e}")
+                if not stop_event.is_set(): # Only log error if not stopped by user
+                    with print_lock:
+                        rprint(f"[bold red]Error downloading {chapter['title']}:[/bold red] {e}")
 
         # Use ThreadPoolExecutor for concurrent chapter downloads
-        with ThreadPoolExecutor(max_workers=3) as executor: # Adjust max_workers as needed for chapters
-            futures = [executor.submit(download_single_chapter_cli, chapter, i) for i, chapter in enumerate(chapters_to_download)]
-            # Wait for all futures to complete
+        stop_event = threading.Event() # Event to signal stopping downloads
+        
+        # This is a placeholder for a more robust resume feature.
+        # For a full resume feature, you'd need to track downloaded chapters/pages
+        # and pass that information to download_chapter.
+        # For now, it just means the stop event can be passed.
+        
+        with ThreadPoolExecutor(max_workers=max_workers) as executor: # Adjust max_workers as needed for chapters
+            futures = []
+            for i, chapter in enumerate(chapters_to_download):
+                if stop_event.is_set():
+                    rprint("[bold yellow]Download stopped by user.[/bold yellow]")
+                    break
+                futures.append(executor.submit(download_single_chapter_cli, chapter, i, stop_event))
+            
+            # Wait for all futures to complete or for the stop event to be set
             for future in futures:
-                future.result() # This will re-raise any exceptions from the threads
+                try:
+                    future.result() # This will re-raise any exceptions from the threads
+                except Exception as e:
+                    # Handle exceptions from cancelled futures or other errors
+                    pass
+                if stop_event.is_set():
+                    # If stop is pressed, cancel remaining futures and break
+                    for f in futures:
+                        f.cancel()
+                    break
 
         rprint("\n[bold green]All selected chapters downloaded (or attempted).[/bold green]")
 
