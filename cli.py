@@ -6,6 +6,8 @@ from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.text import Text
 from rich import print as rprint
+from concurrent.futures import ThreadPoolExecutor
+import threading
 
 from bato_scraper import get_manga_info, download_chapter, search_manga
 
@@ -161,13 +163,28 @@ def download(
         console=console
     ) as progress:
         task = progress.add_task("[bold green]Downloading chapters...", total=len(chapters_to_download))
-        for i, chapter in enumerate(chapters_to_download):
-            progress.update(task, description=f"[bold green]Downloading {chapter['title']}...[/bold green] ([{i+1}/{len(chapters_to_download)}])")
+        
+        # Use a lock for thread-safe printing with rich
+        print_lock = threading.Lock()
+
+        def download_single_chapter_cli(chapter, index):
+            with print_lock:
+                progress.update(task, description=f"[bold green]Downloading {chapter['title']}...[/bold green] ([{index+1}/{len(chapters_to_download)}])")
             try:
                 download_chapter(chapter['url'], manga_title, chapter['title'], output_dir)
-                progress.advance(task)
+                with print_lock:
+                    progress.advance(task)
             except Exception as e:
-                rprint(f"[bold red]Error downloading {chapter['title']}:[/bold red] {e}")
+                with print_lock:
+                    rprint(f"[bold red]Error downloading {chapter['title']}:[/bold red] {e}")
+
+        # Use ThreadPoolExecutor for concurrent chapter downloads
+        with ThreadPoolExecutor(max_workers=3) as executor: # Adjust max_workers as needed for chapters
+            futures = [executor.submit(download_single_chapter_cli, chapter, i) for i, chapter in enumerate(chapters_to_download)]
+            # Wait for all futures to complete
+            for future in futures:
+                future.result() # This will re-raise any exceptions from the threads
+
         rprint("\n[bold green]All selected chapters downloaded (or attempted).[/bold green]")
 
 @app.command(name="gui", help="Launch the GUI application.")
