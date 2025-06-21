@@ -4,6 +4,8 @@ import os
 import re
 import json
 import time # Import time for sleep
+from concurrent.futures import ThreadPoolExecutor
+import threading
 
 def search_manga(query, max_pages=5):
     all_results = []
@@ -93,13 +95,24 @@ def download_chapter(chapter_url, manga_title, chapter_title, output_dir="."):
         print(f"Full HTML content dumped to {dump_file_path} for inspection.")
         return
 
-    for i, img_url in enumerate(image_urls):
+    # Use a lock for thread-safe printing
+    print_lock = threading.Lock()
+
+    def download_image(img_url, index):
         if img_url and img_url.startswith('http'):
             try:
                 img_data = requests.get(img_url).content
                 img_extension = img_url.split('.')[-1].split('?')[0]
-                with open(os.path.join(chapter_dir, f"page_{i+1}.{img_extension}"), 'wb') as handler:
+                img_path = os.path.join(chapter_dir, f"page_{index+1}.{img_extension}")
+                with open(img_path, 'wb') as handler:
                     handler.write(img_data)
-                print(f"Downloaded {img_url} to {chapter_dir}")
+                with print_lock:
+                    print(f"Downloaded {img_url} to {chapter_dir}")
             except Exception as e:
-                print(f"Error downloading {img_url}: {e}")
+                with print_lock:
+                    print(f"Error downloading {img_url}: {e}")
+
+    # Use ThreadPoolExecutor for concurrent downloads
+    with ThreadPoolExecutor(max_workers=15) as executor: # You can adjust max_workers as needed
+        for i, img_url in enumerate(image_urls):
+            executor.submit(download_image, img_url, i)

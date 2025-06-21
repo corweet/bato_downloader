@@ -1,5 +1,6 @@
 import customtkinter as ctk
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from tkinter import messagebox, filedialog
 from bato_scraper import get_manga_info, download_chapter, search_manga
 import os
@@ -207,13 +208,27 @@ class BatoScraperGUI(ctk.CTk):
 
     def _download_chapters(self, chapters_to_download):
         total_chapters = len(chapters_to_download)
-        for i, chapter in enumerate(chapters_to_download):
-            self.log_message(f"Downloading {chapter['title']}...")
+        
+        # Use a lock for thread-safe GUI updates
+        gui_update_lock = threading.Lock()
+
+        def download_single_chapter(chapter, index):
+            with gui_update_lock:
+                self.log_message(f"Downloading {chapter['title']}...")
             try:
                 download_chapter(chapter['url'], self.manga_title, chapter['title'], self.output_directory)
-                self.update_progress(i + 1, total_chapters)
+                with gui_update_lock:
+                    self.update_progress(index + 1, total_chapters)
             except Exception as e:
-                self.log_message(f"Error downloading {chapter['title']}: {e}")
+                with gui_update_lock:
+                    self.log_message(f"Error downloading {chapter['title']}: {e}")
+
+        # Use ThreadPoolExecutor for concurrent chapter downloads
+        with ThreadPoolExecutor(max_workers=3) as executor: # Adjust max_workers as needed for chapters
+            futures = [executor.submit(download_single_chapter, chapter, i) for i, chapter in enumerate(chapters_to_download)]
+            # You can add a mechanism to wait for all futures to complete if needed,
+            # but the 'with' statement handles waiting for completion.
+        
         self.log_message("\nAll selected chapters downloaded (or attempted).")
         self.progress_bar.set(1) # Ensure progress bar is full at the end
 
