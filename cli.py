@@ -8,6 +8,7 @@ from rich.text import Text
 from rich import print as rprint
 from concurrent.futures import ThreadPoolExecutor
 import threading
+import time # Import time for sleep
 
 from bato_scraper import get_manga_info, download_chapter, search_manga
 
@@ -168,6 +169,7 @@ def download(
         
         # Use a lock for thread-safe printing with rich
         print_lock = threading.Lock()
+        stop_event = threading.Event() # Event to signal stopping downloads
 
         def download_single_chapter_cli(chapter, index, stop_event):
             if stop_event.is_set():
@@ -189,36 +191,39 @@ def download(
                     with print_lock:
                         rprint(f"[bold red]Error downloading {chapter['title']}:[/bold red] {e}")
 
-        # Use ThreadPoolExecutor for concurrent chapter downloads
-        stop_event = threading.Event() # Event to signal stopping downloads
-        
-        # This is a placeholder for a more robust resume feature.
-        # For a full resume feature, you'd need to track downloaded chapters/pages
-        # and pass that information to download_chapter.
-        # For now, it just means the stop event can be passed.
-        
-        with ThreadPoolExecutor(max_workers=max_workers) as executor: # Adjust max_workers as needed for chapters
-            futures = []
-            for i, chapter in enumerate(chapters_to_download):
-                if stop_event.is_set():
-                    rprint("[bold yellow]Download stopped by user.[/bold yellow]")
-                    break
-                futures.append(executor.submit(download_single_chapter_cli, chapter, i, stop_event))
-            
-            # Wait for all futures to complete or for the stop event to be set
-            for future in futures:
-                try:
-                    future.result() # This will re-raise any exceptions from the threads
-                except Exception as e:
-                    # Handle exceptions from cancelled futures or other errors
-                    pass
-                if stop_event.is_set():
-                    # If stop is pressed, cancel remaining futures and break
-                    for f in futures:
-                        f.cancel()
-                    break
+        try:
+            with ThreadPoolExecutor(max_workers=max_workers) as executor: # Adjust max_workers as needed for chapters
+                futures = []
+                for i, chapter in enumerate(chapters_to_download):
+                    if stop_event.is_set():
+                        rprint("[bold yellow]Download stopped by user.[/bold yellow]")
+                        break
+                    futures.append(executor.submit(download_single_chapter_cli, chapter, i, stop_event))
+                
+                # Wait for all futures to complete or for the stop event to be set
+                for future in futures:
+                    try:
+                        future.result() # This will re-raise any exceptions from the threads
+                    except Exception as e:
+                        # Handle exceptions from cancelled futures or other errors
+                        pass
+                    if stop_event.is_set():
+                        # If stop is pressed, cancel remaining futures and break
+                        for f in futures:
+                            f.cancel()
+                        break
+        except KeyboardInterrupt:
+                rprint("\n[bold yellow]KeyboardInterrupt detected. Stopping downloads...[/bold yellow]")
+                stop_event.set() # Set the stop event
+                progress.stop() # Stop the progress bar immediately
+                # Allow a moment for threads to react to the stop event
+                time.sleep(1) # Give threads a chance to finish current image or exit
+        finally:
+                if not stop_event.is_set():
+                    rprint("\n[bold green]All selected chapters downloaded (or attempted).[/bold green]")
+                else:
+                    rprint("\n[bold yellow]Downloads stopped by user.[/bold yellow]")
 
-        rprint("\n[bold green]All selected chapters downloaded (or attempted).[/bold green]")
 
 @app.command(name="gui", help="Launch the GUI application.")
 def launch_gui():
