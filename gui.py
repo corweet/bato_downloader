@@ -61,8 +61,16 @@ class BatoScraperGUI(ctk.CTk):
         self.stop_downloads_button = ctk.CTkButton(self.action_frame, text="Stop All Downloads", command=self.stop_all_downloads, fg_color="red")
         self.stop_downloads_button.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
 
+        self.convert_pdf_checkbox = ctk.CTkCheckBox(self.action_frame, text="Convert to PDF")
+        self.convert_pdf_checkbox.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+        self.convert_pdf_checkbox.bind("<Button-1>", self.toggle_keep_images_checkbox)
+
+        self.keep_images_checkbox = ctk.CTkCheckBox(self.action_frame, text="Keep Images (with PDF)")
+        self.keep_images_checkbox.grid(row=1, column=2, padx=10, pady=10, sticky="ew")
+        self.keep_images_checkbox.configure(state="disabled") # Initially disabled
+
         self.settings_button = ctk.CTkButton(self.action_frame, text="Settings", command=self.open_settings)
-        self.settings_button.grid(row=1, column=1, padx=10, pady=10, sticky="ew")
+        self.settings_button.grid(row=1, column=3, padx=10, pady=10, sticky="ew")
 
         self.output_dir_label = ctk.CTkLabel(self.action_frame, text=f"Output: {os.getcwd()}")
         self.output_dir_label.grid(row=2, column=0, columnspan=4, padx=10, pady=5, sticky="w")
@@ -83,6 +91,14 @@ class BatoScraperGUI(ctk.CTk):
         self.chapters = []
         self.download_executor = None # To hold the ThreadPoolExecutor
         self.stop_downloads_flag = threading.Event() # Event to signal stopping downloads
+
+    def toggle_keep_images_checkbox(self, event):
+        # This function is called when the convert_pdf_checkbox is clicked
+        if self.convert_pdf_checkbox.get() == 1: # If PDF conversion is enabled
+            self.keep_images_checkbox.configure(state="normal")
+        else:
+            self.keep_images_checkbox.configure(state="disabled")
+            self.keep_images_checkbox.deselect() # Uncheck if PDF conversion is disabled
 
     def log_message(self, message):
         self.output_text.configure(state="normal")
@@ -230,10 +246,9 @@ class BatoScraperGUI(ctk.CTk):
             with gui_update_lock:
                 self.log_message(f"Downloading {chapter['title']}...")
             try:
-                # The download_chapter function itself handles image-level threading.
-                # We need to ensure it respects the stop flag if it's a long-running operation.
-                # For now, we assume download_chapter is relatively quick or checks its own internal stop.
-                download_chapter(chapter['url'], self.manga_title, chapter['title'], self.output_directory, self.stop_downloads_flag)
+                convert_to_pdf = self.convert_pdf_checkbox.get() == 1
+                keep_images = self.keep_images_checkbox.get() == 1
+                download_chapter(chapter['url'], self.manga_title, chapter['title'], self.output_directory, self.stop_downloads_flag, convert_to_pdf, keep_images)
                 if not self.stop_downloads_flag.is_set(): # Only update progress if not stopped
                     with gui_update_lock:
                         self.update_progress(index + 1, total_chapters)
