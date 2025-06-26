@@ -20,6 +20,7 @@ A Python-based tool for searching, listing, and downloading manga chapters from 
 *   **Manga Search:** Search for manga series by title.
 *   **Chapter Listing:** List all available chapters for a given manga series.
 *   **Chapter Download:** Download single chapters, a range of chapters, or all chapters from a series.
+*   **PDF Conversion:** Convert downloaded chapters into a single PDF file.
 *   **Flexible Output:** Specify a custom directory for downloaded manga.
 *   **User-Friendly Interfaces:** Choose between a powerful CLI built with `Typer` and `Rich`, or an intuitive GUI built with `CustomTkinter`.
 *   **Robust Scraping:** Handles image extraction and sanitization for file paths.
@@ -81,6 +82,14 @@ To run the CLI, navigate to the project directory and use `python cli.py [comman
         ```bash
         python cli.py download "https://bato.to/series/143275/no-guard-wife" --range "1-10" -o "MangaDownloads"
         ```
+    *   **Convert to PDF:** Use the `--pdf` flag to convert downloaded chapters into a single PDF file. By default, original images are deleted after conversion.
+        ```bash
+        python cli.py download "https://bato.to/series/143275/no-guard-wife" --all --pdf -o "MangaDownloads"
+        ```
+    *   **Keep Images with PDF:** Use the `--keep-images` flag along with `--pdf` to retain the original image files after PDF conversion.
+        ```bash
+        python cli.py download "https://bato.to/series/143275/no-guard-wife" --all --pdf --keep-images -o "MangaDownloads"
+        ```
     *   **Specify output directory:** Use the `--output` or `-o` option to set the download directory. If not specified, chapters will be downloaded to the current working directory.
 
 *   **Launch GUI:**
@@ -109,6 +118,8 @@ python cli.py gui
 *   **List Chapters Button:** Displays all fetched chapters in the output log.
 *   **Download All Button:** Downloads all chapters of the currently loaded manga.
 *   **Download Range Button:** Prompts for a chapter range (e.g., `1-10`) and downloads those chapters.
+*   **Convert to PDF Checkbox:** Enable this to convert downloaded chapters into PDF files.
+*   **Keep Images Checkbox:** Enable this (along with "Convert to PDF") to keep original image files after PDF conversion.
 *   **Select Output Dir Button:** Allows you to choose a directory where downloaded manga will be saved.
 *   **Progress Bar:** Shows the download progress.
 *   **Output Log:** Displays messages, search results, and download status.
@@ -132,7 +143,8 @@ python cli.py gui
     *   Contains the core logic for scraping Bato.to.
     *   `search_manga(query, max_pages)`: Searches for manga based on a query across multiple pages.
     *   `get_manga_info(series_url)`: Extracts the manga title and a list of chapters (title and URL) from a series page.
-    *   `download_chapter(chapter_url, manga_title, chapter_title, output_dir)`: Downloads all images for a given chapter, sanitizes chapter titles for file paths, creates necessary directories, and saves images.
+    *   `download_chapter(chapter_url, manga_title, chapter_title, output_dir, stop_event, convert_to_pdf, keep_images)`: Downloads all images for a given chapter, sanitizes chapter titles for file paths, creates necessary directories, and saves images. Now also handles optional PDF conversion and image deletion.
+    *   `convert_chapter_to_pdf(chapter_dir, delete_images)`: Converts a directory of images into a single PDF file.
     *   Uses `requests` for HTTP requests and `BeautifulSoup` for parsing HTML.
     *   Includes basic error handling for network requests and JSON parsing.
 
@@ -145,6 +157,7 @@ The project relies on the following Python libraries:
 *   `customtkinter`: For creating the modern-looking graphical user interface.
 *   `requests`: For making HTTP requests to Bato.to.
 *   `beautifulsoup4`: For parsing HTML content and extracting data.
+*   `Pillow`: For image processing and PDF creation.
 
 ## Error Handling
 
