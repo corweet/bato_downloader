@@ -61,71 +61,6 @@ def get_manga_info(series_url):
     
     return manga_title, chapters
 
-def download_chapter(chapter_url, manga_title, chapter_title, output_dir=".", stop_event=None):
-    if stop_event and stop_event.is_set():
-        return # Stop early if signal is already set
-
-    response = requests.get(chapter_url)
-    soup = BeautifulSoup(response.content, 'html.parser')
-
-    # Sanitize chapter_title for use in file paths
-    # Remove characters that are invalid in Windows file paths
-    sanitized_chapter_title = re.sub(r'[<>:"/\\|?*]', '', chapter_title).strip()
-    # Replace spaces with underscores and remove multiple underscores
-    sanitized_chapter_title = re.sub(r'\s+', '_', sanitized_chapter_title)
-    sanitized_chapter_title = re.sub(r'_+', '_', sanitized_chapter_title).strip('_')
-    
-    chapter_dir = os.path.join(output_dir, manga_title, sanitized_chapter_title)
-    os.makedirs(chapter_dir, exist_ok=True)
-
-    image_urls = []
-    script_tags = soup.find_all('script')
-    for script in script_tags:
-        if 'imgHttps' in script.text:
-            match = re.search(r'imgHttps = (\[.*?\]);', script.text)
-            if match:
-                try:
-                    image_urls = json.loads(match.group(1))
-                except json.JSONDecodeError as e:
-                    print(f"Error decoding JSON from script tag: {e}")
-                break
-
-    if not image_urls:
-        print(f"No image URLs found for {chapter_title} at {chapter_url}.")
-        dump_file_path = os.path.join(chapter_dir, f"{sanitized_chapter_title}_dump.html")
-        with open(dump_file_path, 'w', encoding='utf-8') as f:
-            f.write(soup.prettify())
-        print(f"Full HTML content dumped to {dump_file_path} for inspection.")
-        return
-
-    # Use a lock for thread-safe printing
-    print_lock = threading.Lock()
-
-    def download_image(img_url, index):
-        if stop_event and stop_event.is_set():
-            return # Stop early if signal is set
-
-        if img_url and img_url.startswith('http'):
-            try:
-                img_data = requests.get(img_url).content
-                img_extension = img_url.split('.')[-1].split('?')[0]
-                img_path = os.path.join(chapter_dir, f"page_{index+1}.{img_extension}")
-                with open(img_path, 'wb') as handler:
-                    handler.write(img_data)
-                with print_lock:
-                    print(f"Downloaded {img_url} to {chapter_dir}")
-            except Exception as e:
-                with print_lock:
-                    print(f"Error downloading {img_url}: {e}")
-
-    # Use ThreadPoolExecutor for concurrent downloads
-    with ThreadPoolExecutor(max_workers=15) as executor: # You can adjust max_workers as needed
-        futures = [executor.submit(download_image, img_url, i) for i, img_url in enumerate(image_urls)]
-        for future in futures:
-            future.result() # Ensure all images are downloaded before proceeding
-
-    return chapter_dir # Return the directory where images are saved
-
 def convert_chapter_to_pdf(chapter_dir, delete_images=False):
     from PIL import Image
 
@@ -184,6 +119,8 @@ def download_chapter(chapter_url, manga_title, chapter_title, output_dir=".", st
     # Replace spaces with underscores and remove multiple underscores
     sanitized_chapter_title = re.sub(r'\s+', '_', sanitized_chapter_title)
     sanitized_chapter_title = re.sub(r'_+', '_', sanitized_chapter_title).strip('_')
+    # Remove trailing dots, which are invalid in Windows folder names
+    sanitized_chapter_title = sanitized_chapter_title.rstrip('.')
     
     chapter_dir = os.path.join(output_dir, manga_title, sanitized_chapter_title)
     os.makedirs(chapter_dir, exist_ok=True)
